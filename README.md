@@ -33,7 +33,7 @@ Tikrinami šie pavyzdžiai:
 * Tuščio failo hash'o generavimas.
 ![test4](screenshots/test4.png)
 
-### [2] Kolizijų paieška
+### [2] *Kolizijų* paieška
 Pagal užd. nurodytus reikalavimus sugeneruojamos 100'000 atsitiktinių simbolių eilučių porų.
 Ieškoma ar tarp tų porų nėra vienodų maišos kodų. Kadangi maišos funkcija nėra labai efektyvi,
 kaskart randamos 5-7 kolizijos.
@@ -48,3 +48,12 @@ kaskart randamos 5-7 kolizijos.
 ### [5] Skirtingumo tikrinimas, lyginant 100'000 string'ų porų
 Tikrinamas 100'000 simbolių eilučių porų, kurios skiriasi vienu simboliu, skirtingumas hex ir bitų lygmenyse.
 ![difference](screenshots/difference.png)
+
+## Funkcijos atitikimas reikalavimams
+1. (+) Input gali būti bet kokio dydžio;
+2. (+) Hash kodas visada tokio pat fiksuoto dydžio;
+3. (+) Hash funkcija yra deterministinė (tam pačiam input'ui visada tas pats output'as);
+4. (+/-) Hash reikšmė apskaičiuojama pakankamai efektyviai;
+5. (+/-) Iš Hash kodo praktiškai neįmanoma atgaminti pradinės įvesties;
+6. (-) Funkcija nėra atspari *kolizijoms*. 100'000 porų string'ų randamos bent kelios *kolizijos*;
+7. (+) Tenkinamas *Avalanche* efektas (input'ą pakeitus minimaliai, Hash kodas pakinta iš esmės);
