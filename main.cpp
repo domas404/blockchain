@@ -127,7 +127,7 @@ void writeHash(vector<string> hashes){
     for(vector<string>::iterator it=hashes.begin(); it!=hashes.end(); ++it){
         r << "#" << *it << endl;
     }
-    cout << "Hash'ai issaugoti faile \'hashedInput.txt\'" << endl;
+    cout << "Hashes saved to file \'hashedInput.txt\'" << endl;
     r.close();
 }
 
@@ -137,10 +137,8 @@ void difference(string hash1, string hash2, double &sum){
         if(hash1[i]==hash2[i])
             dif++;
     }
-    sum += (64-dif)*100/64;
-    // cout << "Skirtingumas: " << ((64-dif)*100/64) << " proc." << endl;
+    sum += (double)(64-dif)*100/64;
 }
-
 void difference(vector<string> hash1, vector<string> hash2, double &sum){
     int dif=0;
     for(int i=0; i<32; ++i){
@@ -149,8 +147,7 @@ void difference(vector<string> hash1, vector<string> hash2, double &sum){
             dif++;
         }
     }
-    sum += ((32*8)-dif)*100/(32*8);
-    // cout << (((32*8)-dif)*100/(32*8)) << " proc." << endl;
+    sum += (double)((32*8)-dif)*100/(32*8);
 }
 
 void test_case(string fileName1, string fileName2){
@@ -166,11 +163,11 @@ void test_case(string fileName1, string fileName2){
 
     double hex_dif=0;
     difference(hex_val1, hex_val2, hex_dif);
-    cout << "Skirtingumas hex lygmenyje: " << hex_dif;
+    cout << "\nHash hex difference: " << fixed << setprecision(2) << hex_dif << "%" << endl;
     
     double bi_dif=0;
     difference(bi_val1, bi_val2, bi_dif);
-    cout << "Skirtingumas binary lygmenyje: " << bi_dif << endl; 
+    cout << "Hash binary difference: " << fixed << setprecision(2) << bi_dif << "%" << endl;
 }
 void test_case_console(string input1, string input2){
     string hex_val1, hex_val2;
@@ -184,16 +181,21 @@ void test_case_console(string input1, string input2){
 
     double hex_dif=0;
     difference(hex_val1, hex_val2, hex_dif);
-    cout << "\nSkirtingumas hex lygmenyje: " << hex_dif << " proc." << endl;
+    cout << "\nHash hex difference: " << fixed << setprecision(2) << hex_dif << "%" << endl;
     
     double bi_dif=0;
     difference(bi_val1, bi_val2, bi_dif);
-    cout << "Skirtingumas binary lygmenyje: " << bi_dif << " proc." << endl; 
+    cout << "Hash binary difference: " << fixed << setprecision(2) << bi_dif << "%" << endl; 
 }
 
 double myRandom(){
     static mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
     static uniform_int_distribution<int> dist(0, 255);
+    return dist(mt);
+}
+double myRandom2(int n){
+    static mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
+    static uniform_int_distribution<int> dist(0, n);
     return dist(mt);
 }
 
@@ -209,7 +211,7 @@ void symbolGenerator(){
 }
 
 void tests(){
-    cout << "Pasirinkite testa:\n[1] dvieju skirtingu vieno simbolio failu hashu palyginimas\n[2] dvieju skirtingu random failu is >1000 simboliu hashu palyginimas\n[3] dvieju failu is >1000 simboliu hashu palyginimas, kai failai skiriasi tik 1 simboliu\n[4] tuscias file\'as" << endl;
+    cout << "Choose a test:\n[1] Comparison of two hashes from single-symbol containing files;\n[2] Comparison of hashes from two randomly generated files, containing >1000 symbols;\n[3] Comparison of hashes from two files, containing >1000 symbols, when files differ by only one symbol;\n[4] Empty file;" << endl;
     int test;
     string file;
     cin >> test;
@@ -226,27 +228,10 @@ void tests(){
             break;
         case 4:
             file = fileInput("empty.txt");
-            cout << "Tuscio file\'o hash\'as: #" << hashfunc(file) << endl;
+            cout << "Empty file hash: #" << hashfunc(file) << endl;
     }
 }
 
-void konst(){
-    vector<string> lines;
-    vector<string> hashes;
-
-    fileInput("konstitucija.txt", lines);
-
-    auto pr = chrono::high_resolution_clock::now();
-    for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
-        hashes.push_back(hashfunc((*it)));
-    }
-
-    auto pab = chrono::high_resolution_clock::now();
-    double time_taken = chrono::duration_cast<chrono::nanoseconds>(pab - pr).count();
-    time_taken *= 1e-9;
-    cout << setw(50) << left << "konstitucijos hash'avimas uztruko: ";
-    cout << time_taken << " s" << endl;
-}
 void generatePairs(vector<string> &pair1, vector<string> &pair2, int n, int len){
     string word="";
     for(int i=0; i<n; ++i){
@@ -258,6 +243,20 @@ void generatePairs(vector<string> &pair1, vector<string> &pair2, int n, int len)
         for(int j=0; j<len; ++j){
             word += char(myRandom());
         }
+        pair2.push_back(word);
+        word="";
+    }
+}
+void generateSimilarPairs(vector<string> &pair1, vector<string> &pair2, int n, int len){
+    string word="";
+    int a;
+    for(int i=0; i<n; ++i){
+        for(int j=0; j<len; ++j){
+            word += char(myRandom());
+        }
+        pair1.push_back(word);
+        a = myRandom2(len-1);
+        word[a] = char(myRandom());
         pair2.push_back(word);
         word="";
     }
@@ -274,58 +273,105 @@ void collision(){
     vector<string> bi_val1;
     vector<string> bi_val2;
 
-    cout << "Generuojamos 10 simboliu poros..." << endl;
+    cout << "Generating 10-symbol pairs..." << endl;
     generatePairs(pair1, pair2, 25000, 10);
-    cout << "Generuojamos 100 simboliu poros..." << endl;
+    cout << "Generating 100-symbol pairs..." << endl;
     generatePairs(pair1, pair2, 25000, 100);
-    cout << "Generuojamos 500 simboliu poros..." << endl;
+    cout << "Generating 500-symbol pairs..." << endl;
     generatePairs(pair1, pair2, 25000, 500);
-    cout << "Generuojamos 1000 simboliu poros..." << endl;
+    cout << "Generating 1000-symbol pairs..." << endl;
     generatePairs(pair1, pair2, 25000, 1000);
 
-    double hex_dif_sum=0;
-    // double bi_dif_sum=0;
-
     int dif=0;
-    cout << "Generuojami ir lyginami hash\'ai..." << endl;
+    cout << "Generating and comparing hashes..." << endl;
     for(int i=0; i<100000; ++i){
         hashfunc(pair1[i], hex_val1, bi_val1);
         hashfunc(pair2[i], hex_val2, bi_val2);
 
         if(hex_val1 == hex_val2){
             dif++;
-            // cout << pair1[i] << " " << pair2[i] << " " << hex_val1 << " " << hex_val2 << endl;
         }
         hex_val1="";
         hex_val2="";
         bi_val1.clear();
         bi_val2.clear();
     }
-    cout << "Koliziju kiekis: " << dif << endl;
+    cout << "\nAmount of collisions: " << dif << endl;
 }
+void similarity(){
+    vector<string> pair1;
+    vector<string> pair2;
+    pair1.reserve(100000);
+    pair2.reserve(100000);
+    
+    string hex_val1;
+    string hex_val2;
+    vector<string> bi_val1;
+    vector<string> bi_val2;
 
+    cout << "Generating 10-symbol pairs..." << endl;
+    generateSimilarPairs(pair1, pair2, 25000, 10);
+    cout << "Generating 100-symbol pairs..." << endl;
+    generateSimilarPairs(pair1, pair2, 25000, 100);
+    cout << "Generating 500-symbol pairs..." << endl;
+    generateSimilarPairs(pair1, pair2, 25000, 500);
+    cout << "Generating 1000-symbol pairs..." << endl;
+    generateSimilarPairs(pair1, pair2, 25000, 1000);
+
+    double hex_dif_sum=0;
+    double bi_dif_sum=0;
+
+    int dif=0;
+    cout << "Generating and comparing hashes..." << endl;
+    for(int i=0; i<100000; ++i){
+        hashfunc(pair1[i], hex_val1, bi_val1);
+        hashfunc(pair2[i], hex_val2, bi_val2);
+
+        difference(hex_val1, hex_val2, hex_dif_sum);
+        difference(bi_val1, bi_val2, bi_dif_sum);
+
+        hex_val1="";
+        hex_val2="";
+        bi_val1.clear();
+        bi_val2.clear();
+    }
+    cout << "\nHash hex difference: " <<  fixed << setprecision(2) << hex_dif_sum/100000 << "%" << endl;
+    cout << "Hash binary difference: " <<  fixed << setprecision(2) << bi_dif_sum/100000 << "%" << endl;
+}
+void time_spent(vector<string> &lines){
+    auto pr = chrono::high_resolution_clock::now();
+    for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
+        hashfunc(*it);
+    }
+    auto pab = chrono::high_resolution_clock::now();
+    double time_taken = chrono::duration_cast<chrono::nanoseconds>(pab - pr).count();
+    time_taken *= 1e-9;
+    cout << "File hashed in: ";
+    cout << time_taken << " s" << endl;
+}
 void onlyHash(){
     int inputType;
-    string fileName;
+    string fileName, input;
     vector<string> lines;
     vector<string> hashes;
-    string file;
-    cout << "Duomenu ivestis:\n[1] is failo po eilute\n[2] visas failas\n[3] is konsoles" << endl;
+    cout << "Choose data input:\n[1] file (one line at a time)\n[2] file (whole)\n[3] console" << endl;
     cin >> inputType;
     switch(inputType){
         case 1:
-            cout << "Failo pavadinimas: ";
+            cout << "File title: ";
             cin >> fileName;
             fileInput(fileName+".txt", lines);
+            time_spent(lines);
             break;
         case 2:
-            cout << "Failo pavadinimas: ";
+            cout << "File title: ";
             cin >> fileName;
-            file = fileInput(fileName+".txt");
-            cout << "Hash value: #" << hashfunc(file) << endl;
+            input = fileInput(fileName+".txt");
+            cout << "Hash value: #" << hashfunc(input) << endl;
             break;
         case 3:
-            manualInput();
+            input = manualInput();
+            cout << "Hash value: #" << hashfunc(input) << endl;
             break;
     }
     for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
@@ -358,7 +404,7 @@ void hashCompare(){
 }
 int main(){
     int whatToDo;
-    cout << "\nPasirinkite, ka norite daryti:\n[1] Paprasti testai su duomenimis is failu\n[2] Konstitucijos testas\n[3] Koliziju paieska\n[4] Individuoalaus inputo hash\'avimas\n[5] Dvieju input\'u hash\'u palyginimas" << endl;
+    cout << "\nChoose what to do:\n[1] Simple tests with data from files;\n[2] Search of collisions;\n[3] Individual input hashing;\n[4] Comparison of hashes from different inputs;\n[5] Test hash differences of 100\'000 similar string pairs;" << endl;
     cin >> whatToDo;
     string input;
     switch(whatToDo){
@@ -366,69 +412,17 @@ int main(){
             tests();
             break;
         case 2:
-            konst();
-            break;
-        case 3:
             collision();
             break;
-        case 4:
+        case 3:
             onlyHash();
             break;
-        case 5:
+        case 4:
             hashCompare();
+            break;
+        case 5:
+            similarity();
+            break;
     }
-    // int inputType;
-    // string fileName;
-    // vector<string> lines;
-    // vector<string> hashes;
-    // cout << "Duomenu ivestis:\n[1] is failo\n[2] is konsoles" << endl;
-    // cin >> inputType;
-    // switch(inputType){
-    //     case 1:
-    //         cout << "Failo pavadinimas: ";
-    //         cin >> fileName;
-    //         fileInput(fileName+".txt", lines);
-    //         break;
-    //     case 2:
-    //         manualInput();
-    //         break;
-    // }
-    // cout << "nuskaityta" << endl;
-    // auto pr = chrono::high_resolution_clock::now();
-    // for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
-    //     hashes.push_back(hashfunc((*it)));
-    // }
-
-    // auto pab = chrono::high_resolution_clock::now();
-    // double time_taken = chrono::duration_cast<chrono::nanoseconds>(pab - pr).count();
-    // time_taken *= 1e-9;
-    // cout << setw(50) << left << "konstitucijos hash'avimas uztruko: ";
-    // cout << time_taken << " s" << endl;
-
-    // writeHash(hashes);
-
-    // int inputType;
-    // string input, input2;
-    // string file_input, file2_input;
-    // cout << "Duomenis ivesti: \n[1] is failo\n[2] per command line\n";
-    // cin >> inputType;
-    // if (inputType == 1){
-        // file_input = fileInput("input.txt");
-        // file2_input = fileInput("konstitucija2.txt");
-    // }
-    // else if (inputType == 2){
-        // input = manualInput();
-        // input2 = manualInput();
-    // }
-    // string hash1 = hashfunc(input, input.length());
-    // string hash2 = hashfunc(input2, input2.length());
-    // string hash3 = hashfunc(file_input, file_input.length());
-    // string hash4 = hashfunc(file2_input, file2_input.length());
-    // int dif=0;
-    // for(int i=0; i<64; ++i){
-    //     if(hash1[i]==hash2[i])
-    //         dif++;
-    // }
-    // cout << "Skirtingumas: " << ((64-dif)*100/64) << " proc." << endl;
     return 0; 
 }
