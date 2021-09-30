@@ -38,18 +38,29 @@ string to_nBase(int num, int n){
 void hashfunc(string input, string &hex_val, vector<string> &bi_value){
     int tarp=0;
     hex_val="";
-    // if(input==""){
-    //     tarp=-1;
-    // }
-    int a = int(input[0])/2;
-    while(hex_val.length()<64){
-        for(int i=0; i<input.length(); ++i){
-            tarp = (tarp + a + int(input[i]))%256;
-            a += (int(input[i])+500)/3-77;
+    int a=0;
+    int b = 77;
+    if(input==""){
+        while(hex_val.length()<64){
+            for(int i=0; i<1; ++i){
+                tarp = (tarp + a)%256;
+                a += 500/3-77;
+            }
+            hex_val += to_nBase(tarp, 16);
+            bi_value.push_back(to_nBase(tarp, 2));
         }
-        hex_val += to_nBase(tarp, 16);
-        bi_value.push_back(to_nBase(tarp, 2));
-        // cout << tarp << " " << bi_value.back() << endl;
+    }
+    else{
+        a = int(input[0])/2;
+        while(hex_val.length()<64){
+            for(int i=0; i<input.length(); ++i){
+                tarp = (tarp + a + int(input[i]))%256;
+                a += (int(input[i])+500)/3-77;
+            }
+            hex_val += to_nBase(tarp, 16);
+            bi_value.push_back(to_nBase(tarp, 2));
+            // cout << tarp << " " << bi_value.back() << endl;
+        }
     }
     if(hex_val.length()>64){
         hex_val.pop_back();
@@ -63,16 +74,26 @@ void hashfunc(string input, string &hex_val, vector<string> &bi_value){
 string hashfunc(string input){
     string hash_val="";
     int tarp=0;
-    // if(input==""){
-    //     tarp=-1;
-    // }
-    int a = int(input[0])/2;
-    while(hash_val.length()<64){
-        for(int i=0; i<input.length(); ++i){
-            tarp = (tarp + a + int(input[i]))%256;
-            a += (int(input[i])+500)/3-77;
+    int a=0;
+    int b = 77;
+    if(input==""){
+        while(hash_val.length()<64){
+            for(int i=0; i<1; ++i){
+                tarp = (tarp + a)%256;
+                a += 500/3-77;
+            }
+            hash_val += to_nBase(tarp, 16);
         }
-        hash_val += to_nBase(tarp, 16);
+    }
+    else{
+        a = int(input[0])/2;
+        while(hash_val.length()<64){
+            for(int i=0; i<input.length(); ++i){
+                tarp = (tarp + a + int(input[i]))%256;
+                a += (int(input[i])+500)/3-77;
+            }
+            hash_val += to_nBase(tarp, 16);
+        }
     }
     if(hash_val.length()>64){
         hash_val.pop_back();
@@ -112,16 +133,17 @@ void writeHash(vector<string> hashes){
     r.close();
 }
 
-void difference(string hash1, string hash2){
+void difference(string hash1, string hash2, double &sum){
     int dif=0;
     for(int i=0; i<64; ++i){
         if(hash1[i]==hash2[i])
             dif++;
     }
-    cout << "Skirtingumas: " << ((64-dif)*100/64) << " proc." << endl;
+    sum += (64-dif)*100/64;
+    // cout << "Skirtingumas: " << ((64-dif)*100/64) << " proc." << endl;
 }
 
-void difference(vector<string> hash1, vector<string> hash2){
+void difference(vector<string> hash1, vector<string> hash2, double &sum){
     int dif=0;
     for(int i=0; i<32; ++i){
         for(int j=0; j<8; ++j){
@@ -129,10 +151,11 @@ void difference(vector<string> hash1, vector<string> hash2){
             dif++;
         }
     }
-    cout << (((32*8)-dif)*100/(32*8)) << " proc." << endl;
+    sum += ((32*8)-dif)*100/(32*8);
+    // cout << (((32*8)-dif)*100/(32*8)) << " proc." << endl;
 }
 
-void test_12(string fileName1, string fileName2){
+void test_case(string fileName1, string fileName2){
     string file1, file2;
     string hex_val1, hex_val2;
     vector<string> bi_val1, bi_val2;
@@ -143,10 +166,14 @@ void test_12(string fileName1, string fileName2){
     hashfunc(file1, hex_val1, bi_val1);
     hashfunc(file2, hex_val2, bi_val2);
 
-    cout << "Skirtingumas hex lygmenyje: ";
-    difference(hex_val1, hex_val2);
-    cout << "Skirtingumas binary lygmenyje: ";
-    difference(bi_val1, bi_val2);
+    double hex_dif=0;
+    difference(hex_val1, hex_val2, hex_dif);
+    cout << "Skirtingumas hex lygmenyje: " << hex_dif;
+    
+    double bi_dif=0;
+    difference(bi_val1, bi_val2, bi_dif);
+    cout << "Skirtingumas binary lygmenyje: " << bi_dif << endl;
+    
 }
 
 double myRandom(){
@@ -167,49 +194,29 @@ void symbolGenerator(){
 }
 
 void tests(){
-    cout << "Pasirinkite testa:\n[1] dvieju skirtingu vieno simbolio failu hashu palyginimas\n[2] dvieju skirtingu random failu is >1000 simboliu hashu palyginimas\n[3] dvieju random failu is >1000 simboliu hashu palyginimas, kai failai skiriasi tik 1 simboliu" << endl;
+    cout << "Pasirinkite testa:\n[1] dvieju skirtingu vieno simbolio failu hashu palyginimas\n[2] dvieju skirtingu random failu is >1000 simboliu hashu palyginimas\n[3] dvieju failu is >1000 simboliu hashu palyginimas, kai failai skiriasi tik 1 simboliu" << endl;
     int test;
     cin >> test;
     switch(test){
         case 1:
-            test_12("test1a.txt", "test1b.txt");
+            test_case("test1a.txt", "test1b.txt");
             break;
         case 2:
             symbolGenerator();
-            test_12("randomFile1.txt", "randomFile2.txt");
+            test_case("randomFile1.txt", "randomFile2.txt");
+            break;
+        case 3:
+            test_case("konstitucija.txt", "konstitucija2.txt");
             break;
     }
 }
 
-int main(){
-    int whatToDo;
-    cout << "Pasirinkite, ka norite daryti:\n[1] testai\n[2] individualaus inputo hash'avimas" << endl;
-    cin >> whatToDo;
-    switch(whatToDo){
-        case 1:
-            tests();
-            break;
-        case 2:
-            // something();
-            break;
-    }
-    int inputType;
-    string fileName;
+void konst(){
     vector<string> lines;
     vector<string> hashes;
-    cout << "Duomenu ivestis:\n[1] is failo\n[2] is konsoles" << endl;
-    cin >> inputType;
-    switch(inputType){
-        case 1:
-            cout << "Failo pavadinimas: ";
-            cin >> fileName;
-            fileInput(fileName+".txt", lines);
-            break;
-        case 2:
-            manualInput();
-            break;
-    }
-    cout << "nuskaityta" << endl;
+
+    fileInput("konstitucija.txt", lines);
+
     auto pr = chrono::high_resolution_clock::now();
     for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
         hashes.push_back(hashfunc((*it)));
@@ -220,8 +227,113 @@ int main(){
     time_taken *= 1e-9;
     cout << setw(50) << left << "konstitucijos hash'avimas uztruko: ";
     cout << time_taken << " s" << endl;
+}
+void generatePairs(vector<string> &pair1, vector<string> &pair2, int n, int len){
+    string word="";
+    for(int i=0; i<n; ++i){
+        for(int j=0; j<len; ++j){
+            word += char(myRandom());
+        }
+        pair1.push_back(word);
+        word="";
+        for(int j=0; j<len; ++j){
+            word += char(myRandom());
+        }
+        pair2.push_back(word);
+        word="";
+    }
+}
 
-    writeHash(hashes);
+void collision(){
+    vector<string> pair1;
+    vector<string> pair2;
+    pair1.reserve(100000);
+    pair2.reserve(100000);
+    
+    string hex_val1;
+    string hex_val2;
+    vector<string> bi_val1;
+    vector<string> bi_val2;
+
+    cout << "Generuojamos 10 simboliu poros..." << endl;
+    generatePairs(pair1, pair2, 25000, 10);
+    cout << "Generuojamos 100 simboliu poros..." << endl;
+    generatePairs(pair1, pair2, 25000, 100);
+    cout << "Generuojamos 500 simboliu poros..." << endl;
+    generatePairs(pair1, pair2, 25000, 500);
+    cout << "Generuojamos 1000 simboliu poros..." << endl;
+    generatePairs(pair1, pair2, 25000, 1000);
+
+    double hex_dif_sum=0;
+    // double bi_dif_sum=0;
+
+    int dif=0;
+    cout << "Generuojami ir lyginami hash\'ai..." << endl;
+    for(int i=0; i<100000; ++i){
+        hashfunc(pair1[i], hex_val1, bi_val1);
+        hashfunc(pair2[i], hex_val2, bi_val2);
+
+        if(hex_val1 == hex_val2){
+            dif++;
+            // cout << pair1[i] << " " << pair2[i] << " " << hex_val1 << " " << hex_val2 << endl;
+        }
+        hex_val1="";
+        hex_val2="";
+        bi_val1.clear();
+        bi_val2.clear();
+    }
+    cout << "Koliziju kiekis: " << dif << endl;
+}
+
+int main(){
+    int whatToDo;
+    cout << "Pasirinkite, ka norite daryti:\n[1] Paprasti testai is failu\n[2] Konstitucijos testas\n[3] Koliziju paieska" << endl;
+    cin >> whatToDo;
+    string input;
+    switch(whatToDo){
+        case 1:
+            tests();
+            break;
+        case 2:
+            konst();
+            break;
+        case 3:
+            collision();
+            break;
+        case 4:
+            input = fileInput("empty.txt");
+            cout << hashfunc(input) << endl;
+            break;
+    }
+    // int inputType;
+    // string fileName;
+    // vector<string> lines;
+    // vector<string> hashes;
+    // cout << "Duomenu ivestis:\n[1] is failo\n[2] is konsoles" << endl;
+    // cin >> inputType;
+    // switch(inputType){
+    //     case 1:
+    //         cout << "Failo pavadinimas: ";
+    //         cin >> fileName;
+    //         fileInput(fileName+".txt", lines);
+    //         break;
+    //     case 2:
+    //         manualInput();
+    //         break;
+    // }
+    // cout << "nuskaityta" << endl;
+    // auto pr = chrono::high_resolution_clock::now();
+    // for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
+    //     hashes.push_back(hashfunc((*it)));
+    // }
+
+    // auto pab = chrono::high_resolution_clock::now();
+    // double time_taken = chrono::duration_cast<chrono::nanoseconds>(pab - pr).count();
+    // time_taken *= 1e-9;
+    // cout << setw(50) << left << "konstitucijos hash'avimas uztruko: ";
+    // cout << time_taken << " s" << endl;
+
+    // writeHash(hashes);
 
     // int inputType;
     // string input, input2;
