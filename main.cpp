@@ -161,6 +161,9 @@ void test_case(string fileName1, string fileName2){
     hashfunc(file1, hex_val1, bi_val1);
     hashfunc(file2, hex_val2, bi_val2);
 
+    cout << "#" << hex_val1 << endl;
+    cout << "#" << hex_val2 << endl;
+
     double hex_dif=0;
     difference(hex_val1, hex_val2, hex_dif);
     cout << "\nHash hex difference: " << fixed << setprecision(2) << hex_dif << "%" << endl;
@@ -176,8 +179,8 @@ void test_case_console(string input1, string input2){
     hashfunc(input1, hex_val1, bi_val1);
     hashfunc(input2, hex_val2, bi_val2);
 
-    cout << "\n" << input1 << left <<  ": #" << hex_val1 << endl;
-    cout << input2 << left <<  ": #" << hex_val2 << endl;
+    cout << "#" << hex_val1 << endl;
+    cout << "#" << hex_val2 << endl;
 
     double hex_dif=0;
     difference(hex_val1, hex_val2, hex_dif);
