@@ -27,8 +27,11 @@ Tikrinami šie pavyzdžiai:
 * Lyginami du failai, sudaryti tik iš vieno, tačiau skirtingo, simbolio.
 ![test1](screenshots/test1.png)
 * Lyginami failai, sudaryti iš 1500 atsitiktinai sugeneruotų simbolių.
+![test2](screenshots/test2.png)
 * Lyginami iš daug simbolių sudaryti failai, kuriuose skiriasi tik vienas simbolis.
+![test3](screenshots/test3.png)
 * Tuščio failo hash'o generavimas.
+![test4](screenshots/test4.png)
 ### Konstitucijos hash'avimas
 Konstitucijos hash'avimas užtruko: 0.50985 s
 
