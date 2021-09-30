@@ -137,7 +137,7 @@ void difference(string hash1, string hash2, double &sum){
         if(hash1[i]==hash2[i])
             dif++;
     }
-    sum += (double)(64-dif)*100/64;
+    sum = (double)(64-dif)*100/64;
 }
 void difference(vector<string> hash1, vector<string> hash2, double &sum){
     int dif=0;
@@ -147,7 +147,7 @@ void difference(vector<string> hash1, vector<string> hash2, double &sum){
             dif++;
         }
     }
-    sum += (double)((32*8)-dif)*100/(32*8);
+    sum = (double)((32*8)-dif)*100/(32*8);
 }
 
 void test_case(string fileName1, string fileName2){
@@ -318,17 +318,22 @@ void similarity(){
     cout << "Generating 1000-symbol pairs..." << endl;
     generateSimilarPairs(pair1, pair2, 25000, 1000);
 
-    double hex_dif_sum=0;
-    double bi_dif_sum=0;
+    double hex_dif, bi_dif;
+    double hex_dif_sum=0, bi_dif_sum=0;
+    double min_val=100, max_val=0;
 
-    int dif=0;
     cout << "Generating and comparing hashes..." << endl;
     for(int i=0; i<100000; ++i){
         hashfunc(pair1[i], hex_val1, bi_val1);
         hashfunc(pair2[i], hex_val2, bi_val2);
 
-        difference(hex_val1, hex_val2, hex_dif_sum);
-        difference(bi_val1, bi_val2, bi_dif_sum);
+        difference(hex_val1, hex_val2, hex_dif);
+        difference(bi_val1, bi_val2, bi_dif);
+        hex_dif_sum += hex_dif;
+        bi_dif_sum += bi_dif;
+
+        if(hex_dif>max_val) max_val=hex_dif;
+        if(hex_dif<min_val) min_val=hex_dif;
 
         hex_val1="";
         hex_val2="";
@@ -336,6 +341,8 @@ void similarity(){
         bi_val2.clear();
     }
     cout << "\nHash hex difference: " <<  fixed << setprecision(2) << hex_dif_sum/100000 << "%" << endl;
+    cout << "Min hex difference: " <<  fixed << setprecision(2) << min_val << "%" << endl;
+    cout << "Max difference: " <<  fixed << setprecision(2) << max_val << "%" << endl;
     cout << "Hash binary difference: " <<  fixed << setprecision(2) << bi_dif_sum/100000 << "%" << endl;
 }
 void time_spent(vector<string> &lines){
