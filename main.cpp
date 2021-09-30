@@ -24,14 +24,12 @@ string to_nBase(int num, int n){
     } while(num>0);
 
     if(n==2 && liek.size()<8){
-        // cout << "liekana: " << liek.size();
         for(int i=0; i<8-liek.size(); ++i){
             fnum += "0";
         }
     }
     for (int j=z-1; j>=0; j--)
         fnum += el[liek[j]];
-    // cout << " " << fnum << endl;
     return fnum;
 }
 
@@ -172,8 +170,25 @@ void test_case(string fileName1, string fileName2){
     
     double bi_dif=0;
     difference(bi_val1, bi_val2, bi_dif);
-    cout << "Skirtingumas binary lygmenyje: " << bi_dif << endl;
+    cout << "Skirtingumas binary lygmenyje: " << bi_dif << endl; 
+}
+void test_case_console(string input1, string input2){
+    string hex_val1, hex_val2;
+    vector<string> bi_val1, bi_val2;
+
+    hashfunc(input1, hex_val1, bi_val1);
+    hashfunc(input2, hex_val2, bi_val2);
+
+    cout << "\n" << input1 << left <<  ": #" << hex_val1 << endl;
+    cout << input2 << left <<  ": #" << hex_val2 << endl;
+
+    double hex_dif=0;
+    difference(hex_val1, hex_val2, hex_dif);
+    cout << "\nSkirtingumas hex lygmenyje: " << hex_dif << " proc." << endl;
     
+    double bi_dif=0;
+    difference(bi_val1, bi_val2, bi_dif);
+    cout << "Skirtingumas binary lygmenyje: " << bi_dif << " proc." << endl; 
 }
 
 double myRandom(){
@@ -194,8 +209,9 @@ void symbolGenerator(){
 }
 
 void tests(){
-    cout << "Pasirinkite testa:\n[1] dvieju skirtingu vieno simbolio failu hashu palyginimas\n[2] dvieju skirtingu random failu is >1000 simboliu hashu palyginimas\n[3] dvieju failu is >1000 simboliu hashu palyginimas, kai failai skiriasi tik 1 simboliu" << endl;
+    cout << "Pasirinkite testa:\n[1] dvieju skirtingu vieno simbolio failu hashu palyginimas\n[2] dvieju skirtingu random failu is >1000 simboliu hashu palyginimas\n[3] dvieju failu is >1000 simboliu hashu palyginimas, kai failai skiriasi tik 1 simboliu\n[4] tuscias file\'as" << endl;
     int test;
+    string file;
     cin >> test;
     switch(test){
         case 1:
@@ -208,6 +224,9 @@ void tests(){
         case 3:
             test_case("konstitucija.txt", "konstitucija2.txt");
             break;
+        case 4:
+            file = fileInput("empty.txt");
+            cout << "Tuscio file\'o hash\'as: #" << hashfunc(file) << endl;
     }
 }
 
@@ -285,9 +304,61 @@ void collision(){
     cout << "Koliziju kiekis: " << dif << endl;
 }
 
+void onlyHash(){
+    int inputType;
+    string fileName;
+    vector<string> lines;
+    vector<string> hashes;
+    string file;
+    cout << "Duomenu ivestis:\n[1] is failo po eilute\n[2] visas failas\n[3] is konsoles" << endl;
+    cin >> inputType;
+    switch(inputType){
+        case 1:
+            cout << "Failo pavadinimas: ";
+            cin >> fileName;
+            fileInput(fileName+".txt", lines);
+            break;
+        case 2:
+            cout << "Failo pavadinimas: ";
+            cin >> fileName;
+            file = fileInput(fileName+".txt");
+            cout << "Hash value: #" << hashfunc(file) << endl;
+            break;
+        case 3:
+            manualInput();
+            break;
+    }
+    for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
+        hashes.push_back(hashfunc((*it)));
+    }
+}
+void hashCompare(){
+    int inputType;
+    string fileName1, fileName2;
+    string input1, input2;
+    double sum=0;
+    cout << "Duomenu ivestis:\n[1] visas failas\n[2] is konsoles" << endl;
+    cin >> inputType;
+    switch(inputType){
+        case 1:
+            cout << "Pirmo failo pavadinimas: ";
+            cin >> fileName1;
+            cout << "Antro failo pavadinimas: ";
+            cin >> fileName2;
+            input1 = fileInput(fileName1+".txt");
+            input2 = fileInput(fileName2+".txt");
+            test_case(input1, input2);
+            break;
+        case 2:
+            input1 = manualInput();
+            input2 = manualInput();
+            test_case_console(input1, input2);
+            break;
+    }
+}
 int main(){
     int whatToDo;
-    cout << "Pasirinkite, ka norite daryti:\n[1] Paprasti testai is failu\n[2] Konstitucijos testas\n[3] Koliziju paieska" << endl;
+    cout << "\nPasirinkite, ka norite daryti:\n[1] Paprasti testai su duomenimis is failu\n[2] Konstitucijos testas\n[3] Koliziju paieska\n[4] Individuoalaus inputo hash\'avimas\n[5] Dvieju input\'u hash\'u palyginimas" << endl;
     cin >> whatToDo;
     string input;
     switch(whatToDo){
@@ -301,9 +372,10 @@ int main(){
             collision();
             break;
         case 4:
-            input = fileInput("empty.txt");
-            cout << hashfunc(input) << endl;
+            onlyHash();
             break;
+        case 5:
+            hashCompare();
     }
     // int inputType;
     // string fileName;
