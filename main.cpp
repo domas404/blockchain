@@ -161,7 +161,7 @@ void test_case(string fileName1, string fileName2){
     hashfunc(file1, hex_val1, bi_val1);
     hashfunc(file2, hex_val2, bi_val2);
 
-    cout << "#" << hex_val1 << endl;
+    cout << "\n#" << hex_val1 << endl;
     cout << "#" << hex_val2 << endl;
 
     double hex_dif=0;

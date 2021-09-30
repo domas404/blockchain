@@ -32,17 +32,19 @@ Tikrinami šie pavyzdžiai:
 ![test3](screenshots/test3.png)
 * Tuščio failo hash'o generavimas.
 ![test4](screenshots/test4.png)
-### Konstitucijos hash'avimas
-Konstitucijos hash'avimas užtruko: 0.50985 s
 
-### Kolizijų paieška
+### [2] Kolizijų paieška
 Pagal užd. nurodytus reikalavimus sugeneruojamos 100'000 atsitiktinių simbolių eilučių porų.
 Ieškoma ar tarp tų porų nėra vienodų maišos kodų. Kadangi maišos funkcija nėra labai efektyvi,
-kaskart randamos 4-7 kolizijos.
+kaskart randamos 5-7 kolizijos.
+![collision](screenshots/collision.png)
 
-## Skirtingumo tikrinimas
+### [3] Individualių input'ų hash'avimas
+#### Konstitucijos hash'avimas
+![konstitucija](screenshots/konstitucija.png)
+
+### [4] Dviejų skirtingų input'ų hash'ų palyginimas
+![comparison](screenshots/comparison.png)
+### [5] Skirtingumo tikrinimas, lyginant 100'000 string'ų porų
 Tikrinamas 100'000 simbolių eilučių porų, kurios skiriasi vienu simboliu, skirtingumas hex ir bitų lygmenyse.
-* Vidutinis skirtingumas hex lygmenyje: 90.95%
-* Minimalus skirtingumas: 0%
-* Maksimalus skirtingumas: 100%
-* Visutinis skirtingumas bitų lygmenyje: 42.93%
+![difference](screenshots/difference.png)
