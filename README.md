@@ -40,7 +40,7 @@ kaskart randamos 5-7 kolizijos.
 ![collision](screenshots/collision.png)
 
 ### [3] Individualių input'ų hash'avimas
-#### Konstitucijos hash'avimas
+#### Failo `konstitucija.txt` hash'avimas
 ![konstitucija](screenshots/konstitucija.png)
 
 ### [4] Dviejų skirtingų input'ų hash'ų palyginimas

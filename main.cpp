@@ -10,6 +10,7 @@
 using namespace std;
 using hrClock = chrono::high_resolution_clock;
 
+// konvertavimas i n-taine sistema
 string to_nBase(int num, int n){
     string el = "0123456789ABCDEF";
     vector<int> liek;
@@ -33,6 +34,7 @@ string to_nBase(int num, int n){
     return fnum;
 }
 
+// hash funkcijos
 void hashfunc(string input, string &hex_val, vector<string> &bi_value){
     int tarp=0;
     hex_val="";
@@ -100,6 +102,7 @@ string hashfunc(string input){
     return hash_val;
 }
 
+// duomenu ivesties budai
 void fileInput(string fileName, vector<string> &lines){
     ifstream d(fileName);
     string line;
@@ -122,6 +125,7 @@ string manualInput(){
     return input;
 }
 
+// doumenu isvestis
 void writeHash(vector<string> hashes){
     ofstream r("hashedInput.txt");
     for(vector<string>::iterator it=hashes.begin(); it!=hashes.end(); ++it){
@@ -131,6 +135,7 @@ void writeHash(vector<string> hashes){
     r.close();
 }
 
+// dvieju hash lyginimas hex ir binary lygmenyse
 void difference(string hash1, string hash2, double &sum){
     int dif=0;
     for(int i=0; i<64; ++i){
@@ -150,6 +155,7 @@ void difference(vector<string> hash1, vector<string> hash2, double &sum){
     sum = (double)((32*8)-dif)*100/(32*8);
 }
 
+// atliekami testai su failais arba ivestinimi is konsoles
 void test_case(string fileName1, string fileName2){
     string file1, file2;
     string hex_val1, hex_val2;
@@ -191,6 +197,7 @@ void test_case_console(string input1, string input2){
     cout << "Hash binary difference: " << fixed << setprecision(2) << bi_dif << "%" << endl; 
 }
 
+// atsitiktiniu skaiciu generavimo funkcijos
 double myRandom(){
     static mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
     static uniform_int_distribution<int> dist(0, 255);
@@ -202,6 +209,7 @@ double myRandom2(int n){
     return dist(mt);
 }
 
+// atsitiktiniu simboliu eiluciu generavimas
 void symbolGenerator(){
     ofstream r1("randomFile1.txt");
     ofstream r2("randomFile2.txt");
@@ -213,6 +221,7 @@ void symbolGenerator(){
     r2.close();
 }
 
+// test'ai
 void tests(){
     cout << "Choose a test:\n[1] Comparison of two hashes from single-symbol containing files;\n[2] Comparison of hashes from two randomly generated files, containing >1000 symbols;\n[3] Comparison of hashes from two files, containing >1000 symbols, when files differ by only one symbol;\n[4] Empty file;" << endl;
     int test;
@@ -235,6 +244,7 @@ void tests(){
     }
 }
 
+// generuojamos simboliu eiluciu poros
 void generatePairs(vector<string> &pair1, vector<string> &pair2, int n, int len){
     string word="";
     for(int i=0; i<n; ++i){
@@ -265,6 +275,7 @@ void generateSimilarPairs(vector<string> &pair1, vector<string> &pair2, int n, i
     }
 }
 
+// ieskoma koliziju
 void collision(){
     vector<string> pair1;
     vector<string> pair2;
@@ -301,6 +312,8 @@ void collision(){
     }
     cout << "\nAmount of collisions: " << dif << endl;
 }
+
+// tikrinamas input'u skirtingumas
 void similarity(){
     vector<string> pair1;
     vector<string> pair2;
@@ -348,6 +361,8 @@ void similarity(){
     cout << "Max difference: " <<  fixed << setprecision(2) << max_val << "%" << endl;
     cout << "Hash binary difference: " <<  fixed << setprecision(2) << bi_dif_sum/100000 << "%" << endl;
 }
+
+// laiko skaiciavimas
 void time_spent(vector<string> &lines){
     auto pr = chrono::high_resolution_clock::now();
     for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
@@ -359,6 +374,8 @@ void time_spent(vector<string> &lines){
     cout << "File hashed in: ";
     cout << time_taken << " s" << endl;
 }
+
+// vieno input'o hash'avimas
 void onlyHash(){
     int inputType;
     string fileName, input;
@@ -388,6 +405,8 @@ void onlyHash(){
         hashes.push_back(hashfunc((*it)));
     }
 }
+
+// dvieju input'u hash'u palyginimas
 void hashCompare(){
     int inputType;
     string fileName1, fileName2;
@@ -412,6 +431,7 @@ void hashCompare(){
             break;
     }
 }
+
 int main(){
     int whatToDo;
     cout << "\nChoose what to do:\n[1] Simple tests with data from files;\n[2] Search of collisions;\n[3] Individual input hashing;\n[4] Comparison of hashes from different inputs;\n[5] Test hash differences of 100\'000 similar string pairs;" << endl;
