@@ -33,9 +33,8 @@ string to_nBase(int num, int n){
         fnum += el[liek[j]];
     return fnum;
 }
-
-// hash funkcijos
-void hashfunc(string input, string &hex_val, vector<string> &bi_value){
+// old hash funkcijos
+void althashfunc(string input, string &hex_val, vector<string> &bi_value){
     int tarp=0;
     hex_val="";
     int a=0;
@@ -71,7 +70,7 @@ void hashfunc(string input, string &hex_val, vector<string> &bi_value){
     // cout << "#" << hash_val << " hash length: " << hash_val.length() << endl;
     // return hash_val;
 }
-string hashfunc(string input){
+string althashfunc(string input){
     string hash_val="";
     int tarp=0;
     int a=0;
@@ -91,6 +90,74 @@ string hashfunc(string input){
             for(int i=0; i<input.length(); ++i){
                 tarp = (tarp + a + int(input[i]))%256;
                 a += (int(input[i])+500)/3-77;
+            }
+            hash_val += to_nBase(tarp, 16);
+        }
+    }
+    if(hash_val.length()>64){
+        hash_val.pop_back();
+    }
+    // cout << "#" << hash_val << " hash length: " << hash_val.length() << endl;
+    return hash_val;
+}
+// hash funkcijos
+void hashfunc(string input, string &hex_val, vector<string> &bi_value){
+    int tarp=0;
+    hex_val="";
+    int a=0;
+    int b = 77;
+    if(input==""){
+        while(hex_val.length()<64){
+            for(int i=0; i<1; ++i){
+                tarp = (tarp + a)%256;
+                a += 50;
+            }
+            hex_val += to_nBase(tarp, 16);
+            bi_value.push_back(to_nBase(tarp, 2));
+        }
+    }
+    else{
+        a = (int(input[0]))/2;
+        while(hex_val.length()<64){
+            for(int i=0; i<input.length(); ++i){
+                tarp = (tarp + a + int(input[i]))%256;
+                a = (int(input[i])%20 + i/3 - i%3);
+            }
+            tarp = abs(tarp);
+            // if(tarp < 0 || tarp > 255) cout << tarp << " ";
+            hex_val += to_nBase(tarp, 16);
+            bi_value.push_back(to_nBase(tarp, 2));
+        }
+    }
+    if(hex_val.length()>64){
+        hex_val.pop_back();
+    }
+    if(bi_value.size()>64){
+        bi_value.pop_back();
+    }
+    // cout << "#" << hash_val << " hash length: " << hash_val.length() << endl;
+    // return hash_val;
+}
+string hashfunc(string input){
+    string hash_val="";
+    int tarp=0;
+    int a=0;
+    int b = 77;
+    if(input==""){
+        while(hash_val.length()<64){
+            for(int i=0; i<1; ++i){
+                tarp = (tarp + a)%256;
+                a += 50;
+            }
+            hash_val += to_nBase(tarp, 16);
+        }
+    }
+    else{
+        a = int(input[0])%10;
+        while(hash_val.length()<64){
+            for(int i=0; i<input.length(); ++i){
+                tarp = (tarp + a + int(input[i]))%256;
+                a += (int(input[i]) + 50 + pow(int(input[i]), 2));
             }
             hash_val += to_nBase(tarp, 16);
         }
@@ -203,9 +270,9 @@ double myRandom(){
     static uniform_int_distribution<int> dist(0, 255);
     return dist(mt);
 }
-double myRandom2(int n){
+double myRandom2(){
     static mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
-    static uniform_int_distribution<int> dist(0, n);
+    static uniform_int_distribution<int> dist(0, 9);
     return dist(mt);
 }
 
@@ -262,14 +329,14 @@ void generatePairs(vector<string> &pair1, vector<string> &pair2, int n, int len)
 }
 void generateSimilarPairs(vector<string> &pair1, vector<string> &pair2, int n, int len){
     string word="";
-    int a;
+    // int a;
     for(int i=0; i<n; ++i){
         for(int j=0; j<len; ++j){
             word += char(myRandom());
         }
         pair1.push_back(word);
-        a = myRandom2(len-1);
-        word[a] = char(myRandom());
+        // a = myRandom2();
+        word[1] = char(int((word[1])+1));
         pair2.push_back(word);
         word="";
     }
@@ -350,6 +417,8 @@ void similarity(){
 
         if(hex_dif>max_val) max_val=hex_dif;
         if(hex_dif<min_val) min_val=hex_dif;
+
+        // if(hex_dif==00) cout << pair1[i] << " " << pair2[i]  << endl;
 
         hex_val1="";
         hex_val2="";
