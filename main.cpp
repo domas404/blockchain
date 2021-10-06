@@ -105,7 +105,6 @@ void hashfunc(string input, string &hex_val, vector<string> &bi_value){
     int tarp=0;
     hex_val="";
     int a=0;
-    int b = 77;
     if(input==""){
         while(hex_val.length()<64){
             for(int i=0; i<1; ++i){
@@ -120,11 +119,11 @@ void hashfunc(string input, string &hex_val, vector<string> &bi_value){
         a = (int(input[0]))/2;
         while(hex_val.length()<64){
             for(int i=0; i<input.length(); ++i){
-                tarp = (tarp + a + int(input[i]))%256;
-                a = (int(input[i])%20 + i/3 - i%3);
+                tarp = (tarp + a + i)%256;
+                a += (int(input[i])%50);
             }
             tarp = abs(tarp);
-            // if(tarp < 0 || tarp > 255) cout << tarp << " ";
+            // cout << tarp << " ";
             hex_val += to_nBase(tarp, 16);
             bi_value.push_back(to_nBase(tarp, 2));
         }
@@ -157,8 +156,9 @@ string hashfunc(string input){
         while(hash_val.length()<64){
             for(int i=0; i<input.length(); ++i){
                 tarp = (tarp + a + int(input[i]))%256;
-                a += (int(input[i]) + 50 + pow(int(input[i]), 2));
+                a = (int(input[i])%100 + i/3);
             }
+            tarp = abs(tarp);
             hash_val += to_nBase(tarp, 16);
         }
     }
@@ -370,6 +370,7 @@ void collision(){
         hashfunc(pair2[i], hex_val2, bi_val2);
 
         if(hex_val1 == hex_val2){
+            // cout << pair1[i].length() << "  " << pair1[i] << "      " << pair2[i] << endl;
             dif++;
         }
         hex_val1="";
