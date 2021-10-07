@@ -6,13 +6,15 @@
 #include <chrono>
 #include <iomanip>
 #include <random>
+#include "sha256.h"
+#include "md5.h"
 
 using namespace std;
 using hrClock = chrono::high_resolution_clock;
 
 // konvertavimas i n-taine sistema
 string to_nBase(int num, int n){
-    string el = "0123456789ABCDEF";
+    string el = "0123456789abcdef";
     vector<int> liek;
     string fnum="";
     int z=0;
@@ -33,78 +35,13 @@ string to_nBase(int num, int n){
         fnum += el[liek[j]];
     return fnum;
 }
-// old hash funkcijos
-void althashfunc(string input, string &hex_val, vector<string> &bi_value){
-    int tarp=0;
-    hex_val="";
-    int a=0;
-    int b = 77;
-    if(input==""){
-        while(hex_val.length()<64){
-            for(int i=0; i<1; ++i){
-                tarp = (tarp + a)%256;
-                a += 500/3-77;
-            }
-            hex_val += to_nBase(tarp, 16);
-            bi_value.push_back(to_nBase(tarp, 2));
-        }
-    }
-    else{
-        a = int(input[0])/2;
-        while(hex_val.length()<64){
-            for(int i=0; i<input.length(); ++i){
-                tarp = (tarp + a + int(input[i]))%256;
-                a += (int(input[i])+500)/3-77;
-            }
-            hex_val += to_nBase(tarp, 16);
-            bi_value.push_back(to_nBase(tarp, 2));
-            // cout << tarp << " " << bi_value.back() << endl;
-        }
-    }
-    if(hex_val.length()>64){
-        hex_val.pop_back();
-    }
-    if(bi_value.size()>64){
-        bi_value.pop_back();
-    }
-    // cout << "#" << hash_val << " hash length: " << hash_val.length() << endl;
-    // return hash_val;
-}
-string althashfunc(string input){
-    string hash_val="";
-    int tarp=0;
-    int a=0;
-    int b = 77;
-    if(input==""){
-        while(hash_val.length()<64){
-            for(int i=0; i<1; ++i){
-                tarp = (tarp + a)%256;
-                a += 500/3-77;
-            }
-            hash_val += to_nBase(tarp, 16);
-        }
-    }
-    else{
-        a = int(input[0])/2;
-        while(hash_val.length()<64){
-            for(int i=0; i<input.length(); ++i){
-                tarp = (tarp + a + int(input[i]))%256;
-                a += (int(input[i])+500)/3-77;
-            }
-            hash_val += to_nBase(tarp, 16);
-        }
-    }
-    if(hash_val.length()>64){
-        hash_val.pop_back();
-    }
-    // cout << "#" << hash_val << " hash length: " << hash_val.length() << endl;
-    return hash_val;
-}
+
 // hash funkcijos
 void hashfunc(string input, string &hex_val, vector<string> &bi_value){
     int tarp=0;
     hex_val="";
     int a=0;
+    int n=input.length();
     if(input==""){
         while(hex_val.length()<64){
             for(int i=0; i<1; ++i){
@@ -116,14 +53,13 @@ void hashfunc(string input, string &hex_val, vector<string> &bi_value){
         }
     }
     else{
-        a = (int(input[0]))/2;
+        a = ((int(input[0])+256)/2)%256;
         while(hex_val.length()<64){
-            for(int i=0; i<input.length(); ++i){
-                tarp = (tarp + a + i)%256;
-                a += (int(input[i])%50);
+            for(int i=0; i<n; ++i){
+                tarp = (a + i*(n-i) + i)%256;
+                a += (int(input[i])+256)%256;
             }
             tarp = abs(tarp);
-            // cout << tarp << " ";
             hex_val += to_nBase(tarp, 16);
             bi_value.push_back(to_nBase(tarp, 2));
         }
@@ -141,7 +77,7 @@ string hashfunc(string input){
     string hash_val="";
     int tarp=0;
     int a=0;
-    int b = 77;
+    int n=input.length();
     if(input==""){
         while(hash_val.length()<64){
             for(int i=0; i<1; ++i){
@@ -152,11 +88,11 @@ string hashfunc(string input){
         }
     }
     else{
-        a = int(input[0])%10;
+        a = ((int(input[0])+256)/2)%256;
         while(hash_val.length()<64){
-            for(int i=0; i<input.length(); ++i){
-                tarp = (tarp + a + int(input[i]))%256;
-                a = (int(input[i])%100 + i/3);
+            for(int i=0; i<n; ++i){
+                tarp = (a + i*(n-i) + i)%256;
+                a += (int(input[i])+256)%256;
             }
             tarp = abs(tarp);
             hash_val += to_nBase(tarp, 16);
@@ -264,15 +200,10 @@ void test_case_console(string input1, string input2){
     cout << "Hash binary difference: " << fixed << setprecision(2) << bi_dif << "%" << endl; 
 }
 
-// atsitiktiniu skaiciu generavimo funkcijos
+// atsitiktiniu skaiciu generavimo funkcija
 double myRandom(){
     static mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
     static uniform_int_distribution<int> dist(0, 255);
-    return dist(mt);
-}
-double myRandom2(){
-    static mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
-    static uniform_int_distribution<int> dist(0, 9);
     return dist(mt);
 }
 
@@ -288,7 +219,7 @@ void symbolGenerator(){
     r2.close();
 }
 
-// test'ai
+// paprasti testai
 void tests(){
     cout << "Choose a test:\n[1] Comparison of two hashes from single-symbol containing files;\n[2] Comparison of hashes from two randomly generated files, containing >1000 symbols;\n[3] Comparison of hashes from two files, containing >1000 symbols, when files differ by only one symbol;\n[4] Empty file;" << endl;
     int test;
@@ -296,14 +227,14 @@ void tests(){
     cin >> test;
     switch(test){
         case 1:
-            test_case("test1a.txt", "test1b.txt");
+            test_case("test_files/test1a.txt", "test_files/test1b.txt");
             break;
         case 2:
             symbolGenerator();
-            test_case("randomFile1.txt", "randomFile2.txt");
+            test_case("test_files/randomFile1.txt", "test_files/randomFile2.txt");
             break;
         case 3:
-            test_case("konstitucija.txt", "konstitucija2.txt");
+            test_case("test_files/konstitucija.txt", "test_files/konstitucija2.txt");
             break;
         case 4:
             file = fileInput("empty.txt");
@@ -329,14 +260,18 @@ void generatePairs(vector<string> &pair1, vector<string> &pair2, int n, int len)
 }
 void generateSimilarPairs(vector<string> &pair1, vector<string> &pair2, int n, int len){
     string word="";
-    // int a;
+    char sym, old;
     for(int i=0; i<n; ++i){
         for(int j=0; j<len; ++j){
             word += char(myRandom());
         }
         pair1.push_back(word);
-        // a = myRandom2();
-        word[1] = char(int((word[1])+1));
+        old = word[1];
+        do {
+            sym = char(myRandom());
+            word[1] = sym;
+        } while(old == sym);
+        
         pair2.push_back(word);
         word="";
     }
@@ -370,8 +305,8 @@ void collision(){
         hashfunc(pair2[i], hex_val2, bi_val2);
 
         if(hex_val1 == hex_val2){
-            // cout << pair1[i].length() << "  " << pair1[i] << "      " << pair2[i] << endl;
             dif++;
+            // cout << pair1[i] << "\n\n" << pair2[i] << "\n\n";
         }
         hex_val1="";
         hex_val2="";
@@ -405,8 +340,9 @@ void similarity(){
     double hex_dif, bi_dif;
     double hex_dif_sum=0, bi_dif_sum=0;
     double min_val=100, max_val=0;
+    double min_bi_val=100, max_bi_val=0;
 
-    cout << "Generating and comparing hashes..." << endl;
+    cout << "Generating and comparing hashes...\n\n";
     for(int i=0; i<100000; ++i){
         hashfunc(pair1[i], hex_val1, bi_val1);
         hashfunc(pair2[i], hex_val2, bi_val2);
@@ -419,60 +355,77 @@ void similarity(){
         if(hex_dif>max_val) max_val=hex_dif;
         if(hex_dif<min_val) min_val=hex_dif;
 
-        // if(hex_dif==00) cout << pair1[i] << " " << pair2[i]  << endl;
+        if(bi_dif>max_bi_val) max_bi_val=bi_dif;
+        if(bi_dif<min_bi_val) min_bi_val=bi_dif;
 
         hex_val1="";
         hex_val2="";
         bi_val1.clear();
         bi_val2.clear();
     }
-    cout << "\nHash hex difference: " <<  fixed << setprecision(2) << hex_dif_sum/100000 << "%" << endl;
-    cout << "Min hex difference: " <<  fixed << setprecision(2) << min_val << "%" << endl;
-    cout << "Max difference: " <<  fixed << setprecision(2) << max_val << "%" << endl;
-    cout << "Hash binary difference: " <<  fixed << setprecision(2) << bi_dif_sum/100000 << "%" << endl;
+    cout << setw(25) << left << "Mean hex difference: " <<  fixed << setprecision(2) << hex_dif_sum/100000 << "%" << endl;
+    cout << setw(25) << left << "Min hex difference: " <<  fixed << setprecision(2) << min_val << "%" << endl;
+    cout << setw(25) << left << "Max hex difference: " <<  fixed << setprecision(2) << max_val << "%\n" << endl;
+    cout << setw(25) << left << "Mean binary difference: " <<  fixed << setprecision(2) << bi_dif_sum/100000 << "%" << endl;
+    cout << setw(25) << left << "Min binary difference: " <<  fixed << setprecision(2) << min_bi_val << "%" << endl;
+    cout << setw(25) << left << "Max binary difference: " <<  fixed << setprecision(2) << max_bi_val << "%" << endl;
 }
 
-// laiko skaiciavimas
-void time_spent(vector<string> &lines){
+// laiko skaiciavimo funkcija
+void time_taken(string input, string (*func)(string)){
     auto pr = chrono::high_resolution_clock::now();
-    for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
-        hashfunc(*it);
-    }
+    cout << func(input) << endl;
     auto pab = chrono::high_resolution_clock::now();
     double time_taken = chrono::duration_cast<chrono::nanoseconds>(pab - pr).count();
     time_taken *= 1e-9;
-    cout << "File hashed in: ";
+    cout << "Input hashed in: ";
     cout << time_taken << " s" << endl;
+}
+
+// hash generavimo funkciju palyginimas
+void comp_test(vector<string> pair1, vector<string> pair2, string (*func)(string)){
+    string hex_val1, hex_val2;
+
+    double hex_dif;
+    double hex_dif_sum=0;
+    double min_val=100, max_val=0;
+
+    // cout << "Generating and comparing hashes..." << endl;
+    for(int i=0; i<100000; ++i){
+        hex_val1 = func(pair1[i]);
+        hex_val2 = func(pair2[i]);
+        difference(hex_val1, hex_val2, hex_dif);
+        hex_dif_sum += hex_dif;
+        if(hex_dif>max_val) max_val=hex_dif;
+        if(hex_dif<min_val) min_val=hex_dif;
+        // if(hex_dif == 25) cout << pair1[i] << "\n" << hex_val1 << "\n" << pair2[i] << "\n" << hex_val2 << "\n";
+        hex_val1="";
+        hex_val2="";
+    }
+    cout << "\nHash hex difference: " <<  fixed << setprecision(2) << hex_dif_sum/100000 << "%" << endl;
+    cout << "Min hex difference: " <<  fixed << setprecision(2) << min_val << "%" << endl;
+    cout << "Max difference: " <<  fixed << setprecision(2) << max_val << "%" << endl;
 }
 
 // vieno input'o hash'avimas
 void onlyHash(){
     int inputType;
     string fileName, input;
-    vector<string> lines;
-    vector<string> hashes;
-    cout << "Choose data input:\n[1] file (one line at a time)\n[2] file (whole)\n[3] console" << endl;
+    cout << "Choose data input:\n[1] file\n[2] console" << endl;
     cin >> inputType;
     switch(inputType){
         case 1:
             cout << "File title: ";
             cin >> fileName;
-            fileInput(fileName+".txt", lines);
-            time_spent(lines);
+            input = fileInput("test_files/"+fileName+".txt");
+            cout << "\nHash value: #";
+            time_taken(input, hashfunc);
             break;
         case 2:
-            cout << "File title: ";
-            cin >> fileName;
-            input = fileInput(fileName+".txt");
-            cout << "Hash value: #" << hashfunc(input) << endl;
-            break;
-        case 3:
             input = manualInput();
-            cout << "Hash value: #" << hashfunc(input) << endl;
+            cout << "\nHash value: #";
+            time_taken(input, hashfunc);
             break;
-    }
-    for(vector<string>::iterator it=lines.begin(); it!=lines.end(); ++it){
-        hashes.push_back(hashfunc((*it)));
     }
 }
 
@@ -482,17 +435,15 @@ void hashCompare(){
     string fileName1, fileName2;
     string input1, input2;
     double sum=0;
-    cout << "Duomenu ivestis:\n[1] visas failas\n[2] is konsoles" << endl;
+    cout << "Choose file input:\n[1] file\n[2] console" << endl;
     cin >> inputType;
     switch(inputType){
         case 1:
-            cout << "Pirmo failo pavadinimas: ";
+            cout << "Title of first file: ";
             cin >> fileName1;
-            cout << "Antro failo pavadinimas: ";
+            cout << "Title of second file: ";
             cin >> fileName2;
-            input1 = fileInput(fileName1+".txt");
-            input2 = fileInput(fileName2+".txt");
-            test_case(input1, input2);
+            test_case("test_files/"+fileName1+".txt", "test_files/"+fileName2+".txt");
             break;
         case 2:
             input1 = manualInput();
@@ -502,9 +453,63 @@ void hashCompare(){
     }
 }
 
+// hash generavimo funkciju palyginimo testai
+void comparison(){
+    int wha, what;
+    cout << "What to compare:\n[1] hashing speed with single input\n[2] hash difference\n";
+    cin >> wha;
+    string input, fileName;
+    if (wha==1){
+        cout << "Input from:\n[1] file\n[2] console" << endl;
+        cin >> what;
+        switch(what){
+            case 1:
+                cout << "File title: ";
+                cin >> fileName;
+                input = fileInput("test_files/"+fileName+".txt");
+                break;
+            case 2:
+                input = manualInput();
+                break;
+        }
+        cout << "\nsha256:";
+        time_taken(input, sha256);
+        cout << "\nmd5:   ";
+        time_taken(input, md5);
+        cout << "\nmyHash:";
+        time_taken(input, hashfunc);
+    }
+    else{
+        vector<string> pair1;
+        vector<string> pair2;
+        pair1.reserve(100000);
+        pair2.reserve(100000);
+
+        string myHash1, myHash2;
+        string sha1, sha2;
+        string md51, md52;
+
+        cout << "Generating 10-symbol pairs..." << endl;
+        generateSimilarPairs(pair1, pair2, 25000, 10);
+        cout << "Generating 100-symbol pairs..." << endl;
+        generateSimilarPairs(pair1, pair2, 25000, 100);
+        cout << "Generating 500-symbol pairs..." << endl;
+        generateSimilarPairs(pair1, pair2, 25000, 500);
+        cout << "Generating 1000-symbol pairs...\n" << endl;
+        generateSimilarPairs(pair1, pair2, 25000, 1000);
+
+        cout << "sha256:\n";
+        comp_test(pair1, pair2, sha256);
+        cout << "\nmd5:\n";
+        comp_test(pair1, pair2, md5);
+        cout << "\nmyHash:\n";
+        comp_test(pair1, pair2, hashfunc);
+    }
+}
+
 int main(){
     int whatToDo;
-    cout << "\nChoose what to do:\n[1] Simple tests with data from files;\n[2] Search of collisions;\n[3] Individual input hashing;\n[4] Comparison of hashes from different inputs;\n[5] Test hash differences of 100\'000 similar string pairs;" << endl;
+    cout << "\nChoose what to do:\n[1] Simple tests with data from files;\n[2] Search of collisions;\n[3] Individual input hashing;\n[4] Comparison of hashes from different inputs;\n[5] Test hash differences of 100\'000 similar string pairs;\n[6] Comparison with sha256 and md5;" << endl;
     cin >> whatToDo;
     string input;
     switch(whatToDo){
@@ -522,6 +527,9 @@ int main(){
             break;
         case 5:
             similarity();
+            break;
+        case 6:
+            comparison();
             break;
     }
     return 0; 
