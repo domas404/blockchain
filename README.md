@@ -36,7 +36,7 @@ kurioje pakeistas vienas simbolis).
 ![test4](screenshots/1_4.png)
 
 ### [2] *Kolizijų* paieška
-Pagal užd. nurodytus reikalavimus sugeneruojamos 100'000 atsitiktinių simbolių eilučių porų.
+* Pagal užd. nurodytus reikalavimus sugeneruojamos 100'000 atsitiktinių simbolių eilučių porų.
 Ieškoma ar tarp tų porų nėra vienodų maišos kodų. Kadangi maišos funkcija nėra labai efektyvi,
 patikrinus **100'000** atsitiktinai sugenetuotų porų, paprastai randamos **0-2** *kolizijos*
 (Ankstesnėje versijoje būdavo randamos **5-7** *kolizijos*).
@@ -49,14 +49,14 @@ patikrinus **100'000** atsitiktinai sugenetuotų porų, paprastai randamos **0-2
 ### [4] Dviejų skirtingų input'ų hash'ų palyginimas
 ![comparison](screenshots/4.png)
 ### [5] Skirtingumo tikrinimas, lyginant 100'000 string'ų porų
-Tikrinamas 100'000 simbolių eilučių porų, kurios skiriasi vienu simboliu, vidutinis,
-minimalus ir maksimalus skirtingumas hex ir bitų lygmenyse.
+* Tikrinamas 100'000 simbolių eilučių porų, kurios skiriasi vienu simboliu, vidutinis,
+minimalus ir maksimalus skirtingumas hex ir bitų lygmenyse. <br />
 ![difference](screenshots/5.png)
 ### [6] Palyginimas su sha256 ir md5
-Tikrinamas to paties failo hash'avimo laikas (hash'uojamas failas - "blockchain and cryptocurrency technologies" knyga
+* Tikrinamas to paties failo hash'avimo laikas (hash'uojamas failas - "Bitcoin and Cryptocurrency Technologies" knyga
 nukopjuota į txt failą).
 ![hash_time](screenshots/6_1.png)
-Lyginamas sha256, md5 ir myHash funkcijų skirtingumas, generuojant 100'000 panašių simbolių eilučių porų.
+* Lyginamas sha256, md5 ir myHash funkcijų skirtingumas, generuojant 100'000 panašių simbolių eilučių porų.
 ![difference](screenshots/6_2.png)
 ## Funkcijos atitikimas reikalavimams
 1. (+) Input gali būti bet kokio dydžio;
